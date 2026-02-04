@@ -3,22 +3,30 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogIn, FileText, Lock, User } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setIsLoading(true);
     
-    // Simulate login delay (for prototype)
+    // Simulate login delay
     setTimeout(() => {
+      const success = login(username, password);
       setIsLoading(false);
-      // Redirect to home page (dashboard)
-      router.push('/');
+      if (success) {
+        router.push('/');
+      } else {
+        setError('اسم المستخدم أو كلمة المرور غير صحيحة');
+      }
     }, 500);
   };
 
@@ -96,6 +104,13 @@ export default function LoginPage() {
               </a>
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
+                {error}
+              </div>
+            )}
+
             {/* Login Button */}
             <button
               type="submit"
@@ -118,9 +133,19 @@ export default function LoginPage() {
 
           {/* Demo Credentials Hint */}
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-xs text-center text-gray-500">
-              للبروتوتايب: يمكنك استخدام أي اسم مستخدم وكلمة مرور
+            <p className="text-xs text-center text-gray-500 mb-2">
+              الحسابات المتاحة:
             </p>
+            <div className="text-xs text-center text-gray-600 space-y-1">
+              <p>dg / dg (المدير العام)</p>
+              <p>secretary / secretary (السكرتيرة)</p>
+              <p>com / com (إدارة المراسلات)</p>
+              <p className="mt-2 pt-2 border-t border-gray-200">
+                <strong>حساب شركة:</strong>
+              </p>
+              <p>sepco / sepco123 (SEPCO)</p>
+              <p className="text-gray-500 text-[10px]">أو sepco@example.com / sepco123</p>
+            </div>
           </div>
         </div>
 

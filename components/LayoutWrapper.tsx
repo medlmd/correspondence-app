@@ -1,14 +1,28 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import Sidebar from './Sidebar';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const isLoginPage = pathname === '/login';
+
+  useEffect(() => {
+    if (!isLoginPage && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, isLoginPage, router]);
 
   if (isLoginPage) {
     return <>{children}</>;
+  }
+
+  if (!isAuthenticated) {
+    return null; // Will redirect
   }
 
   return (

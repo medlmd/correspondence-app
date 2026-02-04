@@ -15,25 +15,57 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
+import { FileCheck, UserCheck, Building2 } from 'lucide-react';
 
-const navigation = [
+const baseNavigation = [
   { nameKey: 'sidebar.home' as const, href: '/', icon: LayoutDashboard },
   { nameKey: 'sidebar.incoming' as const, href: '/incoming', icon: Inbox },
   { nameKey: 'sidebar.outgoing' as const, href: '/outgoing', icon: Send },
   { nameKey: 'sidebar.internal' as const, href: '/internal', icon: Mail },
   { nameKey: 'sidebar.archive' as const, href: '/archive', icon: Archive },
-  { nameKey: 'sidebar.settings' as const, href: '/settings', icon: Settings },
 ];
+
+const roleBasedNavigation = {
+  secretary: [
+    { nameKey: 'sidebar.secretary' as const, href: '/secretary', icon: FileCheck },
+  ],
+  dg: [
+    { nameKey: 'sidebar.dg' as const, href: '/dg', icon: UserCheck },
+  ],
+  com: [
+    { nameKey: 'sidebar.com' as const, href: '/com', icon: Building2 },
+  ],
+  company: [
+    { nameKey: 'sidebar.company' as const, href: '/company', icon: Building2 },
+  ],
+};
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { t, language } = useLanguage();
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    // For prototype: just redirect to login page
-    router.push('/login');
+    logout();
   };
+
+  // Build navigation based on user role
+  let navigation;
+  if (user?.role === 'company') {
+    // Companies only see their messages and settings
+    navigation = [
+      ...(roleBasedNavigation[user.role] || []),
+      { nameKey: 'sidebar.settings' as const, href: '/settings', icon: Settings },
+    ];
+  } else {
+    navigation = [
+      ...baseNavigation,
+      ...(user?.role && roleBasedNavigation[user.role] ? roleBasedNavigation[user.role] : []),
+      { nameKey: 'sidebar.settings' as const, href: '/settings', icon: Settings },
+    ];
+  }
 
   const getTranslation = (key: string) => {
     const keys = key.split('.');
@@ -84,11 +116,11 @@ export default function Sidebar() {
       <div className="border-t border-gray-100 p-4 space-y-2">
         <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
           <div className="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center font-bold text-white text-sm">
-            أ
+            {user?.name.charAt(0) || 'أ'}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-sm text-gray-900 truncate">أحمد محمد</div>
-            <div className="text-xs text-gray-500">مدير النظام</div>
+            <div className="font-semibold text-sm text-gray-900 truncate">{user?.name || 'مستخدم'}</div>
+            <div className="text-xs text-gray-500">{user?.username || ''}</div>
           </div>
         </div>
         <button className="w-full flex items-center justify-center gap-2 rounded-lg bg-gray-50 p-2.5 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">

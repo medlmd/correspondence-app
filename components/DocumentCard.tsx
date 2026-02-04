@@ -28,14 +28,18 @@ export default function DocumentCard({ document, onClick, onView, onDownload, on
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { t } = useLanguage();
   
+  // Safety check: return null if document is not provided
+  if (!document) {
+    return null;
+  }
+  
   const getDepartmentName = (dept?: string) => {
     if (!dept) return t.common.unspecified;
     const deptMap: Record<string, keyof typeof t.departments> = {
-      'IT': 'it',
-      'HR': 'hr',
-      'Management': 'management',
-      'Admin': 'admin',
-      'Finance': 'finance',
+      'Technical': 'technical',
+      'Commercial': 'commercial',
+      'Security': 'security',
+      'Captaincy': 'captaincy',
     };
     return t.departments[deptMap[dept]] || dept;
   };
@@ -66,13 +70,19 @@ export default function DocumentCard({ document, onClick, onView, onDownload, on
 
   const handleView = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (document.fileType === 'pdf' && document.attachments && document.attachments.length > 0) {
-      const filePath = document.attachments[0];
-      const pdfUrl = filePath.startsWith('/') ? filePath : `/uploads/${document.type}/${document.department || 'general'}/${filePath}`;
-      window.open(pdfUrl, '_blank');
-    } else if (document.fileType === 'pdf' && document.fileName) {
-      // Fallback for documents without file paths
-      window.open(`#`, '_blank');
+    if (document.fileType === 'pdf') {
+      // For port company documents, use the specified PDF link
+      if (document.type === 'port_company') {
+        const pdfUrl = 'http://www.port-nouakchott.com/sites/default/files/2020-11/taches%20officiers%20de%20port.pdf';
+        window.open(pdfUrl, '_blank');
+      } else if (document.attachments && document.attachments.length > 0) {
+        const filePath = document.attachments[0];
+        const pdfUrl = filePath.startsWith('/') ? filePath : `/uploads/${document.type}/${document.department || 'general'}/${filePath}`;
+        window.open(pdfUrl, '_blank');
+      } else if (document.fileName) {
+        // Fallback for documents without file paths
+        window.open(`#`, '_blank');
+      }
     } else if (onView) {
       onView(document);
     }
@@ -80,7 +90,15 @@ export default function DocumentCard({ document, onClick, onView, onDownload, on
 
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (document.attachments && document.attachments.length > 0) {
+    if (document.fileType === 'pdf' && document.type === 'port_company') {
+      // For port company documents, use the specified PDF link
+      const pdfUrl = 'http://www.port-nouakchott.com/sites/default/files/2020-11/taches%20officiers%20de%20port.pdf';
+      const link = window.document.createElement('a');
+      link.href = pdfUrl;
+      link.download = document.fileName || 'document.pdf';
+      link.target = '_blank';
+      link.click();
+    } else if (document.attachments && document.attachments.length > 0) {
       const filePath = document.attachments[0];
       // Check if it's a full path (starts with /) or just a filename
       const downloadUrl = filePath.startsWith('/') ? filePath : `/uploads/${document.type}/${document.department || 'general'}/${filePath}`;
@@ -102,12 +120,18 @@ export default function DocumentCard({ document, onClick, onView, onDownload, on
 
   const handlePrint = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (document.fileType === 'pdf' && document.attachments && document.attachments.length > 0) {
-      const filePath = document.attachments[0];
-      const printUrl = filePath.startsWith('/') ? filePath : `/uploads/${document.type}/${document.department || 'general'}/${filePath}`;
-      window.open(printUrl, '_blank');
-    } else if (document.fileType === 'pdf' && document.fileName) {
-      window.open(`#`, '_blank');
+    if (document.fileType === 'pdf') {
+      // For port company documents, use the specified PDF link
+      if (document.type === 'port_company') {
+        const pdfUrl = 'http://www.port-nouakchott.com/sites/default/files/2020-11/taches%20officiers%20de%20port.pdf';
+        window.open(pdfUrl, '_blank');
+      } else if (document.attachments && document.attachments.length > 0) {
+        const filePath = document.attachments[0];
+        const printUrl = filePath.startsWith('/') ? filePath : `/uploads/${document.type}/${document.department || 'general'}/${filePath}`;
+        window.open(printUrl, '_blank');
+      } else if (document.fileName) {
+        window.open(`#`, '_blank');
+      }
     } else {
       window.print();
     }
@@ -152,7 +176,6 @@ export default function DocumentCard({ document, onClick, onView, onDownload, on
             {document.topic}
           </p>
           <div className="flex items-center gap-2 text-xs text-gray-600">
-            <span className="font-medium">{t.common.department}:</span>
             <span className="font-semibold">{department}</span>
           </div>
         </div>

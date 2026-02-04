@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 import { useDocuments } from '@/context/DocumentsContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { getDashboardStats } from '@/lib/data';
 import { mockCorrespondence } from '@/lib/data';
 import StatCard from '@/components/StatCard';
@@ -17,11 +19,23 @@ import { Document, Correspondence } from '@/types';
 export default function Home() {
   const { getStats, documents } = useDocuments();
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    // Redirect companies to their messages page
+    if (user?.role === 'company') {
+      router.push('/company');
+      return;
+    }
+  }, [user, router]);
+
+  // Don't render dashboard for companies
+  if (user?.role === 'company') {
+    return null;
+  }
   
   // Get stats from mock data
   const mockStats = getDashboardStats();

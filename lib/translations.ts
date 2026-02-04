@@ -10,6 +10,10 @@ export const translations = {
       internal: 'الداخلية',
       archive: 'الأرشيف',
       settings: 'الإعدادات',
+      secretary: 'رسائل الشركات',
+      dg: 'رسائل المدير العام',
+      com: 'الرسائل المعتمدة',
+      company: 'مراسلاتي',
     },
     // Pages
     pages: {
@@ -55,6 +59,31 @@ export const translations = {
         userManagement: 'إدارة المستخدمين',
         departments: 'الأقسام والإدارات',
         roles: 'الأدوار والصلاحيات',
+        companies: 'إدارة الشركات',
+      },
+      secretary: {
+        title: 'رسائل الشركات',
+        description: 'الرسائل الواردة من الشركات العاملة في الميناء',
+        pending: 'في انتظار التوجيه',
+        forward: 'توجيه',
+        reject: 'رفض',
+        forwarded: 'تم التوجيه',
+        rejected: 'مرفوضة',
+      },
+      dg: {
+        title: 'رسائل المدير العام',
+        description: 'الرسائل الموجهة من السكرتيرة',
+        approve: 'موافقة',
+        reject: 'رفض',
+        comment: 'قيد الانتظار',
+        addComment: 'أضف تعليق',
+        commentPlaceholder: 'اكتب تعليقك هنا...',
+      },
+      com: {
+        title: 'الرسائل المعتمدة',
+        description: 'الرسائل المعتمدة من المدير العام',
+        approved: 'معتمدة',
+        fromCompany: 'من الشركة',
       },
     },
     // Common
@@ -109,11 +138,10 @@ export const translations = {
     // Departments
     departments: {
       all: 'جميع الإدارات',
-      it: 'المعلوماتية',
-      hr: 'المصادر البشرية',
-      management: 'الإدارة العامة',
-      admin: 'الإدارة',
-      finance: 'المالية',
+      technical: 'الإدارة الفنية',
+      commercial: 'الإدارة التجارية',
+      security: 'الإدارة الأمنية',
+      captaincy: 'إدارة القبطانية',
     },
     // Upload Modal
     upload: {

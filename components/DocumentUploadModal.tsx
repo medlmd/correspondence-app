@@ -13,11 +13,15 @@ interface DocumentUploadModalProps {
     files: File[];
     role?: string;
     category?: string;
+    company?: string;
     uploadedFiles?: Array<{ file: File; filePath: string; fileName: string; fileSize: number; fileType: string }>;
   }) => void;
   title: string;
   description: string;
   color?: 'blue' | 'emerald' | 'purple' | 'slate';
+  showCompanySelect?: boolean;
+  companies?: string[];
+  filesOptional?: boolean; // For companies - files are optional
 }
 
 // Departments will be generated from translations
@@ -54,6 +58,9 @@ export default function DocumentUploadModal({
   title,
   description,
   color = 'blue',
+  showCompanySelect = false,
+  companies = [],
+  filesOptional = false,
 }: DocumentUploadModalProps) {
   const { t } = useLanguage();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -61,15 +68,15 @@ export default function DocumentUploadModal({
   const [topic, setTopic] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState('');
 
   const colors = colorClasses[color];
 
   const departments = [
-    { value: 'IT', label: t.departments.it },
-    { value: 'HR', label: t.departments.hr },
-    { value: 'Management', label: t.departments.management },
-    { value: 'Admin', label: t.departments.admin },
-    { value: 'Finance', label: t.departments.finance },
+    { value: 'Technical', label: t.departments.technical },
+    { value: 'Commercial', label: t.departments.commercial },
+    { value: 'Security', label: t.departments.security },
+    { value: 'Captaincy', label: t.departments.captaincy },
   ];
 
   const categories = [
@@ -110,8 +117,16 @@ export default function DocumentUploadModal({
   };
 
   const handleUpload = async () => {
-    if (!selectedDepartment || !topic || selectedFiles.length === 0) {
+    if (!selectedDepartment || !topic) {
+      alert('يرجى ملء جميع الحقول المطلوبة');
+      return;
+    }
+    if (!filesOptional && selectedFiles.length === 0) {
       alert('يرجى ملء جميع الحقول واختيار ملف واحد على الأقل');
+      return;
+    }
+    if (showCompanySelect && !selectedCompany) {
+      alert('يرجى اختيار الشركة');
       return;
     }
 
@@ -121,31 +136,42 @@ export default function DocumentUploadModal({
                         color === 'purple' ? 'internal' : 'archive';
 
     try {
-      // Upload files one by one
+      // Upload files one by one (if any)
       const uploadedFiles: Array<{ file: File; filePath: string; fileName: string; fileSize: number; fileType: string }> = [];
       
-      for (const file of selectedFiles) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('documentType', documentType);
-        formData.append('department', selectedDepartment);
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('documentType', documentType);
+          formData.append('department', selectedDepartment);
 
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
 
-        if (!response.ok) {
-          throw new Error(`Failed to upload ${file.name}`);
+          if (!response.ok) {
+            throw new Error(`Failed to upload ${file.name}`);
+          }
+
+          const result = await response.json();
+          uploadedFiles.push({
+            file,
+            filePath: result.filePath,
+            fileName: result.fileName,
+            fileSize: result.fileSize,
+            fileType: result.fileType,
+          });
         }
-
-        const result = await response.json();
+      } else if (filesOptional) {
+        // For prototype: create a dummy file entry to show PDF was sent
         uploadedFiles.push({
-          file,
-          filePath: result.filePath,
-          fileName: result.fileName,
-          fileSize: result.fileSize,
-          fileType: result.fileType,
+          file: new File([''], 'document.pdf', { type: 'application/pdf' }),
+          filePath: '',
+          fileName: 'document.pdf',
+          fileSize: 0,
+          fileType: 'application/pdf',
         });
       }
 
@@ -156,6 +182,7 @@ export default function DocumentUploadModal({
         files: selectedFiles,
         role: selectedRole,
         category: selectedCategory,
+        company: selectedCompany,
         uploadedFiles: uploadedFiles,
       });
 
@@ -165,6 +192,7 @@ export default function DocumentUploadModal({
       setTopic('');
       setSelectedRole('');
       setSelectedCategory('');
+      setSelectedCompany('');
       onClose();
     } catch (error) {
       console.error('Upload error:', error);
@@ -178,6 +206,7 @@ export default function DocumentUploadModal({
     setTopic('');
     setSelectedRole('');
     setSelectedCategory('');
+    setSelectedCompany('');
     onClose();
   };
 
@@ -236,6 +265,27 @@ export default function DocumentUploadModal({
             />
           </div>
 
+          {/* Company Selection (for port company documents) */}
+          {showCompanySelect && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                الشركة <span className="text-red-500">{t.upload.required}</span>
+              </label>
+              <select
+                value={selectedCompany}
+                onChange={(e) => setSelectedCompany(e.target.value)}
+                className="w-full rounded-lg border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 px-4 py-2.5 text-sm text-black shadow-sm transition-all focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="">اختر الشركة</option>
+                {companies.map((company) => (
+                  <option key={company} value={company}>
+                    {company}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Category */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -275,7 +325,8 @@ export default function DocumentUploadModal({
           {/* File Upload */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t.upload.files} <span className="text-red-500">{t.upload.required}</span>
+              {t.upload.files} {!filesOptional && <span className="text-red-500">{t.upload.required}</span>}
+              {filesOptional && <span className="text-gray-500 text-xs">(اختياري - للبروتوتايب سيظهر PDF)</span>}
             </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
               <input

@@ -4,6 +4,7 @@ import "./globals.css";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { DocumentsProvider } from "@/context/DocumentsContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -33,11 +34,13 @@ export default function RootLayout({
         className={`${cairo.variable} ${tajawal.variable} font-sans antialiased`}
       >
         <LanguageProvider>
-          <DocumentsProvider>
-            <LayoutWrapper>
-              {children}
-            </LayoutWrapper>
-          </DocumentsProvider>
+          <AuthProvider>
+            <DocumentsProvider>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+            </DocumentsProvider>
+          </AuthProvider>
         </LanguageProvider>
       </body>
     </html>

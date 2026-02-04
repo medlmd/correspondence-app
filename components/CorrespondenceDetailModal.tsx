@@ -13,11 +13,10 @@ interface DocumentDetailModalProps {
 }
 
 const departmentNames: Record<string, string> = {
-  'IT': 'المعلوماتية',
-  'HR': 'المصادر البشرية',
-  'Management': 'الإدارة العامة',
-  'Admin': 'الإدارة',
-  'Finance': 'المالية',
+  'Technical': 'الإدارة الفنية',
+  'Commercial': 'الإدارة التجارية',
+  'Security': 'الإدارة الأمنية',
+  'Captaincy': 'إدارة القبطانية',
 };
 
 const priorityLabels = {
@@ -81,8 +80,44 @@ export default function CorrespondenceDetailModal({
     }
   };
 
+  const getPdfUrl = () => {
+    // For port company documents, use the specified PDF link
+    if (document.type === 'port_company' && document.fileType === 'pdf') {
+      return 'http://www.port-nouakchott.com/sites/default/files/2020-11/taches%20officiers%20de%20port.pdf';
+    }
+    // For other documents, use the attachment path
+    if (document.attachments && document.attachments.length > 0) {
+      const filePath = document.attachments[0];
+      return filePath.startsWith('/') ? filePath : `/uploads/${document.type}/${document.department || 'general'}/${filePath}`;
+    }
+    return null;
+  };
+
+  const handleView = () => {
+    const pdfUrl = getPdfUrl();
+    if (pdfUrl) {
+      window.open(pdfUrl, '_blank');
+    }
+  };
+
+  const handleDownload = () => {
+    const pdfUrl = getPdfUrl();
+    if (pdfUrl) {
+      const link = window.document.createElement('a');
+      link.href = pdfUrl;
+      link.download = document.fileName || 'document.pdf';
+      link.target = '_blank';
+      link.click();
+    }
+  };
+
   const handlePrint = () => {
-    window.print();
+    const pdfUrl = getPdfUrl();
+    if (pdfUrl && document.fileType === 'pdf') {
+      window.open(pdfUrl, '_blank');
+    } else {
+      window.print();
+    }
   };
 
   return (
@@ -259,6 +294,24 @@ export default function CorrespondenceDetailModal({
         {/* Actions Footer */}
         <div className="flex items-center justify-end p-6 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
+            {document.fileType === 'pdf' && (
+              <>
+                <button
+                  onClick={handleView}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  <FileText className="h-4 w-4" />
+                  عرض
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                >
+                  <Download className="h-4 w-4" />
+                  تحميل
+                </button>
+              </>
+            )}
             <button
               onClick={handlePrint}
               className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"

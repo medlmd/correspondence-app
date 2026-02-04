@@ -30,11 +30,10 @@ export default function InternalPage() {
 
   const departments = [
     { value: '', label: t.departments.all },
-    { value: 'IT', label: t.departments.it },
-    { value: 'HR', label: t.departments.hr },
-    { value: 'Management', label: t.departments.management },
-    { value: 'Admin', label: t.departments.admin },
-    { value: 'Finance', label: t.departments.finance },
+    { value: 'Technical', label: t.departments.technical },
+    { value: 'Commercial', label: t.departments.commercial },
+    { value: 'Security', label: t.departments.security },
+    { value: 'Captaincy', label: t.departments.captaincy },
   ];
 
   const categories = [

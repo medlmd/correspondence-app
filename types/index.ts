@@ -8,10 +8,10 @@ export interface User {
   department?: string;
 }
 
-export type DocumentType = 'incoming' | 'outgoing' | 'internal';
+export type DocumentType = 'incoming' | 'outgoing' | 'internal' | 'port_company';
 export type DocumentFileType = 'pdf' | 'word' | 'excel' | 'other';
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
-export type Status = 'pending' | 'in_review' | 'replied' | 'archived' | 'completed';
+export type Status = 'pending' | 'in_review' | 'replied' | 'archived' | 'completed' | 'pending_secretary' | 'forwarded_to_dg' | 'approved_by_dg' | 'rejected_by_dg' | 'commented_by_dg' | 'forwarded_to_department';
 
 export type DocumentRole = 'All' | 'Dir' | 'SimpleUsers';
 export type DocumentCategory = 'المشتريات' | 'العقود' | 'الشؤون القانونية' | 'الفواتير';
@@ -38,6 +38,12 @@ export interface Document {
   updatedAt: Date;
   role?: DocumentRole;
   category?: DocumentCategory;
+  company?: string; // For port company documents
+  workflowStatus?: Status; // For port company workflow
+  gmResponse?: 'approved' | 'rejected' | 'commented'; // GM's response
+  gmComment?: string; // GM's comment if commented
+  forwardedBy?: string; // Who forwarded the document
+  forwardedTo?: string; // Who it was forwarded to
 }
 
 // Keep Correspondence for backward compatibility
