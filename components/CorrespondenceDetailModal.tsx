@@ -26,12 +26,18 @@ const priorityLabels = {
   low: 'منخفض',
 };
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
   pending: 'قيد الانتظار',
   in_review: 'قيد المراجعة',
   replied: 'تم الرد',
   archived: 'مؤرشف',
   completed: 'مكتمل',
+  pending_secretary: 'في انتظار المراجعة',
+  forwarded_to_dg: 'موجهة للمدير العام',
+  approved_by_dg: 'معتمدة',
+  rejected_by_dg: 'مرفوضة',
+  commented_by_dg: 'معلق عليها',
+  forwarded_to_department: 'موجهة للإدارة',
 };
 
 const fileTypeIcons = {
@@ -178,7 +184,7 @@ export default function CorrespondenceDetailModal({
               document.status === 'archived' ? 'bg-purple-100 text-purple-700' :
               'bg-emerald-100 text-emerald-700'
             }`}>
-              {statusLabels[document.status]}
+              {statusLabels[document.status] || 'غير محدد'}
             </span>
           </div>
 
