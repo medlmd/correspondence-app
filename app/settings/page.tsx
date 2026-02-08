@@ -515,7 +515,7 @@ export default function SettingsPage() {
                     <span className="font-semibold">NIF:</span> {company.nif || 'غير محدد'}
                   </div>
                   <div>
-                    <span className="font-semibold">البريد الإلكتروني:</span> {company.email || company.contact}
+                    <span className="font-semibold">البريد الإلكتروني:</span> {company.email || 'غير محدد'}
                   </div>
                   <div>
                     <span className="font-semibold">كلمة المرور:</span> 
