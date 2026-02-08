@@ -26,7 +26,7 @@ const baseNavigation = [
   { nameKey: 'sidebar.archive' as const, href: '/archive', icon: Archive },
 ];
 
-const roleBasedNavigation = {
+const roleBasedNavigation: Record<string, Array<{ nameKey: string; href: string; icon: any }>> = {
   secretary: [
     { nameKey: 'sidebar.secretary' as const, href: '/secretary', icon: FileCheck },
   ],
@@ -39,6 +39,7 @@ const roleBasedNavigation = {
   company: [
     { nameKey: 'sidebar.company' as const, href: '/company', icon: Building2 },
   ],
+  admin: [], // Admin role has no specific navigation items
 };
 
 export default function Sidebar() {
